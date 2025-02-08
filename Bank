@@ -1,0 +1,145 @@
+class Transaction:
+    def __init__(self, amount):
+        self.amount = amount
+
+    def get_amount(self):
+        return self.amount
+
+    def __str__(self):
+        if self.amount > 0:
+            return f"Deposit: +{self.amount}"
+        else:
+            return f"Withdrawal: {self.amount}"
+
+    def __eq__(self, other):
+        return self.amount == other.amount
+
+    def __ne__(self, other):
+        return self.amount != other.amount
+
+    def __gt__(self, other):
+        return self.amount > other.amount
+
+    def __lt__(self, other):
+        return self.amount < other.amount
+
+    def __ge__(self, other):
+        return self.amount >= other.amount
+
+    def __le__(self, other):
+        return self.amount <= other.amount
+
+
+class BankAccount:
+    def __init__(self, balance=0):
+        self.balance = balance
+        self.history = []
+        self.id = None
+
+    def deposit(self, amount):
+        self.balance += amount
+        transaction = Transaction(amount)
+        self.history.append(transaction)
+
+    def withdraw(self, amount):
+        if self.balance >= amount:
+            self.balance -= amount
+            transaction = Transaction(-amount)
+            self.history.append(transaction)
+        else:
+            print("Insufficient funds")
+
+    def get_balance(self):
+        return self.balance
+
+    def print_history(self):
+        for transaction in self.history:
+            print(transaction)
+
+    def get_max_transaction_value(self):
+        if not self.history:
+            raise ValueError("No transactions found for this account")
+        return max(transaction.get_amount() for transaction in self.history)
+
+    def get_min_transaction_value(self):
+        if not self.history:
+            raise ValueError("No transactions found for this account")
+        return min(transaction.get_amount() for transaction in self.history)
+
+    def get_mean_transaction_value(self):
+        if not self.history:
+            raise ValueError("No transactions found for this account")
+        return sum(transaction.get_amount() for transaction in self.history) / len(self.history)
+
+
+class Bank:
+    def __init__(self):
+        self.db = {}
+
+    def add_account(self, id):
+        if id in self.db:
+            raise ValueError(f"Account with id {id} already exists")
+        account = BankAccount()
+        account.id = id
+        self.db[id] = account
+
+    def remove_account(self, id):
+        if id not in self.db:
+            raise ValueError(f"Account with id {id} does not exist")
+        del self.db[id]
+
+    def get_balance(self, id):
+        if id not in self.db:
+            raise ValueError(f"Account with id {id} does not exist")
+        return self.db[id].get_balance()
+
+    def print_history(self, id):
+        if id not in self.db:
+            raise ValueError(f"Account with id {id} does not exist")
+        self.db[id].print_history()
+
+    def get_max_transaction_value(self, id):
+        if id not in self.db:
+            raise ValueError(f"Account with id {id} does not exist")
+        return self.db[id].get_max_transaction_value()
+
+    def get_min_transaction_value(self, id):
+        if id not in self.db:
+            raise ValueError(f"Account with id {id} does not exist")
+        return self.db[id].get_min_transaction_value()
+
+    def get_mean_transaction_value(self, id):
+        if id not in self.db:
+            raise ValueError(f"Account with id {id} does not exist")
+        return self.db[id].get_mean_transaction_value()
+
+
+# Demonstration
+bank = Bank()
+bank.add_account("123")
+bank.add_account("456")
+
+bank.db["123"].deposit(100)
+bank.db["123"].deposit(200)
+bank.db["123"].withdraw(50)
+
+bank.db["456"].deposit(300)
+bank.db["456"].withdraw(100)
+bank.db["456"].withdraw(50)
+
+print("Account 123 History:")
+bank.print_history("123")
+
+print("\nAccount 456 History:")
+bank.print_history("456")
+
+print("\nAccount 123 Balance:", bank.get_balance("123"))
+print("Account 456 Balance:", bank.get_balance("456"))
+
+print("\nAccount 123 Max Transaction Value:", bank.get_max_transaction_value("123"))
+print("Account 123 Min Transaction Value:", bank.get_min_transaction_value("123"))
+print("Account 123 Mean Transaction Value:", bank.get_mean_transaction_value("123"))
+
+print("\nAccount 456 Max Transaction Value:", bank.get_max_transaction_value("456"))
+print("Account 456 Min Transaction Value:", bank.get_min_transaction_value("456"))
+print("Account 456 Mean Transaction Value:", bank.get_mean_transaction_value("456"))
